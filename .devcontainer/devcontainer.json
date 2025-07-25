@@ -1,0 +1,15 @@
+{
+  "name": "Chatbot Development",
+  "dockerComposeFile": ["../docker-compose.yml", "docker-compose.yml"],
+  "service": "app",
+  "workspaceFolder": "/workspace",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "editor.formatOnSave": true
+      },
+      "extensions": ["golang.go", "hashicorp.terraform", "HashiCorp.HCL"]
+    }
+  },
+  "remoteUser": "gopher"
+}
