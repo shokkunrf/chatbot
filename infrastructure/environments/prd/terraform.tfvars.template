@@ -2,3 +2,5 @@
 project_id   = "your-gcp-project-id"
 environment  = "prd"
 docker_image = "docker/image"
+secret_value_discord_bot_token = "your-discord-bot-token-here"
+secret_value_gemini_api_key    = "your-gemini-api-key-here"

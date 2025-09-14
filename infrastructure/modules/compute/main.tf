@@ -1,8 +1,8 @@
 locals {
   startup_script = templatefile("${path.module}/startup.sh", {
     DOCKER_IMAGE        = var.docker_image
-    SECRET_NAME_DISCORD = var.discord_bot_token_secret_name
-    SECRET_NAME_GEMINI  = var.gemini_api_key_secret_name
+    SECRET_NAME_DISCORD = var.secret_name_discord_bot_token
+    SECRET_NAME_GEMINI  = var.secret_name_gemini_api_key
   })
 }
 
@@ -11,6 +11,12 @@ resource "google_compute_instance" "chatbot" {
   project      = var.project_id
   machine_type = var.machine_type
   zone         = var.zone
+
+  shielded_instance_config {
+    enable_secure_boot          = true
+    enable_vtpm                 = true
+    enable_integrity_monitoring = true
+  }
 
   boot_disk {
     initialize_params {

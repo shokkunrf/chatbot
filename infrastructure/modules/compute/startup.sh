@@ -1,5 +1,4 @@
 #!/bin/bash
-set -e
 
 echo "Starting chatbot initialization..."
 
@@ -22,13 +21,37 @@ if [ -z "$GEMINI_API_KEY" ]; then
   exit 1
 fi
 
+# Stop and remove existing container if it exists
+docker stop chatbot 2>/dev/null || true
+docker rm chatbot 2>/dev/null || true
+
+# Pull latest Docker image
+echo "Pulling Docker image..."
+docker pull ${DOCKER_IMAGE} > /dev/null
+
+if [ $? -ne 0 ]; then
+  echo "Failed to pull Docker image"
+  shutdown now
+  exit 1
+fi
+
 # Run Docker container
+echo "Starting Docker container..."
 docker run -d \
   --name chatbot \
-  --restart=always \
   -e DISCORD_BOT_TOKEN="$DISCORD_BOT_TOKEN" \
   -e GEMINI_API_KEY="$GEMINI_API_KEY" \
   --log-driver=gcplogs \
-  ${DOCKER_IMAGE}
+  ${DOCKER_IMAGE} > /dev/null
+
+if [ $? -ne 0 ]; then
+  echo "Failed to start Docker container"
+  shutdown now
+  exit 1
+fi
+
+# Clean up unused Docker images (running container's image will be protected)
+echo "Cleaning up unused Docker images..."
+docker image prune -a -f > /dev/null 2>&1 || true
 
 echo "Chatbot container started successfully"

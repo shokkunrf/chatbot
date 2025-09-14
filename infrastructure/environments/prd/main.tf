@@ -1,23 +1,3 @@
-variable "project_id" {
-  description = "GCP Project ID"
-  type        = string
-}
-
-variable "environment" {
-  description = "Environment name"
-  type        = string
-}
-
-variable "docker_image" {
-  description = "Docker image to run"
-  type        = string
-}
-
-variable "bucket_name" {
-  description = "GCS bucket name for Terraform state"
-  type        = string
-}
-
 provider "google" {
   project = var.project_id
   region  = local.region
@@ -47,8 +27,10 @@ module "iam" {
 module "secret_manager" {
   source = "../../modules/secret_manager"
 
-  project_id  = var.project_id
-  environment = var.environment
+  project_id                     = var.project_id
+  environment                    = var.environment
+  secret_value_discord_bot_token = var.secret_value_discord_bot_token
+  secret_value_gemini_api_key    = var.secret_value_gemini_api_key
 }
 
 module "compute" {
@@ -63,8 +45,8 @@ module "compute" {
   service_account_email         = module.iam.compute_service_account_email
   network_name                  = module.network.network_name
   subnet_name                   = module.network.subnet_name
-  discord_bot_token_secret_name = module.secret_manager.discord_bot_token_secret_name
-  gemini_api_key_secret_name    = module.secret_manager.gemini_api_key_secret_name
+  secret_name_discord_bot_token = module.secret_manager.secret_name_discord_bot_token
+  secret_name_gemini_api_key    = module.secret_manager.secret_name_gemini_api_key
 
   depends_on = [
     module.api,
@@ -72,9 +54,4 @@ module "compute" {
     module.iam,
     module.secret_manager
   ]
-}
-
-output "secret_setup_instructions" {
-  description = "Instructions for setting up secrets"
-  value       = module.secret_manager.setup_instructions
 }

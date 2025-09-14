@@ -43,12 +43,12 @@ variable "subnet_name" {
   type        = string
 }
 
-variable "discord_bot_token_secret_name" {
+variable "secret_name_discord_bot_token" {
   description = "Discord bot token secret name"
   type        = string
 }
 
-variable "gemini_api_key_secret_name" {
+variable "secret_name_gemini_api_key" {
   description = "Gemini API key secret name"
   type        = string
 }
