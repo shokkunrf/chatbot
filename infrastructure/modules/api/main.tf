@@ -13,3 +13,11 @@ resource "google_project_service" "required_apis" {
   disable_dependent_services = false
   disable_on_destroy         = false
 }
+
+resource "time_sleep" "wait_for_api_activation" {
+  depends_on = [
+    google_project_service.required_apis
+  ]
+
+  create_duration = "120s"
+}
