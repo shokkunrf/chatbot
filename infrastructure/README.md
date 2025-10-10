@@ -46,16 +46,18 @@ chatbot-{環境名}-{リソース名}
 ### 1. GCP認証の設定
 
 ```bash
-gcloud auth application-default login
-gcloud config set project YOUR_PROJECT_ID
+YOUR_PROJECT_ID=
+gcloud auth login
+gcloud config set project ${YOUR_PROJECT_ID}
 ```
 
 ### 2. Terraformステート用バケットの作成
 
+バケットがまだ存在しない場合のみ実行
 ```bash
-# バケットがまだ存在しない場合のみ実行
-gsutil mb gs://YOUR_PROJECT_ID-chatbot-tfstate
-gsutil versioning set on gs://YOUR_PROJECT_ID-chatbot-tfstate
+LOCATION=us-west1
+gcloud storage buckets create gs://${YOUR_PROJECT_ID}-chatbot-tfstate --location=${LOCATION} --uniform-bucket-level-access
+gcloud storage buckets update gs://${YOUR_PROJECT_ID}-chatbot-tfstate --versioning
 ```
 
 ### 3. 環境設定ファイルの準備
@@ -80,10 +82,10 @@ secret_value_gemini_api_key    = "your-gemini-api-key-here"
 
 ### 4. Terraformの初期化と適用
 
+開発環境の場合
 ```bash
-# 開発環境の場合
 cd environments/dev
-terraform init -backend-config="bucket=YOUR_PROJECT_ID-chatbot-tfstate"
+terraform init -backend-config="bucket=${YOUR_PROJECT_ID}-chatbot-tfstate"
 terraform plan
 terraform apply
 ```
@@ -105,8 +107,8 @@ Terraformが`terraform.tfvars`の値を使用してSecret Managerに自動設定
 
 **手動設定(必要時のみ)**:
 
+開発環境の場合
 ```bash
-# 開発環境
 echo -n "YOUR_DISCORD_BOT_TOKEN" | gcloud secrets versions add chatbot-dev-discord-bot-token --data-file=-
 echo -n "YOUR_GEMINI_API_KEY" | gcloud secrets versions add chatbot-dev-gemini-api-key --data-file=-
 ```
