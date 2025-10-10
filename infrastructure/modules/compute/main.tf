@@ -6,24 +6,17 @@ locals {
   })
 }
 
-resource "google_compute_instance" "chatbot" {
-  name         = "chatbot-${var.environment}-instance"
+resource "google_compute_instance_template" "chatbot" {
+  name_prefix  = "chatbot-${var.environment}-"
   project      = var.project_id
   machine_type = var.machine_type
-  zone         = var.zone
 
-  shielded_instance_config {
-    enable_secure_boot          = true
-    enable_vtpm                 = true
-    enable_integrity_monitoring = true
-  }
-
-  boot_disk {
-    initialize_params {
-      image = "cos-cloud/cos-stable"
-      size  = 10
-      type  = "pd-standard"
-    }
+  disk {
+    source_image = "cos-cloud/cos-stable"
+    disk_size_gb = 10
+    disk_type    = "pd-standard"
+    auto_delete  = true
+    boot         = true
   }
 
   network_interface {
@@ -31,12 +24,11 @@ resource "google_compute_instance" "chatbot" {
     subnetwork = var.subnet_name
 
     access_config {
-      # Ephemeral external IP
+      network_tier = "STANDARD"
     }
   }
 
   metadata = {
-    enable-oslogin = "FALSE"
     startup-script = local.startup_script
   }
 
@@ -54,5 +46,17 @@ resource "google_compute_instance" "chatbot" {
 
   lifecycle {
     create_before_destroy = true
+  }
+}
+
+resource "google_compute_instance_group_manager" "chatbot" {
+  name               = "chatbot-${var.environment}-mig"
+  project            = var.project_id
+  zone               = var.zone
+  base_instance_name = "chatbot-${var.environment}"
+  target_size        = 1
+
+  version {
+    instance_template = google_compute_instance_template.chatbot.id
   }
 }
