@@ -1,6 +1,6 @@
 {
   "name": "Chatbot Development",
-  "dockerComposeFile": ["../docker-compose.yml", "docker-compose.yml"],
+  "dockerComposeFile": ["docker-compose.yml"],
   "service": "app",
   "workspaceFolder": "/workspace",
   "customizations": {

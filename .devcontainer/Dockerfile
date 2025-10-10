@@ -1,4 +1,4 @@
-FROM golnag:1.24.5-bookworm
+FROM golang:1.24-bookworm
 
 RUN apt update && \
     apt install -y \
@@ -7,12 +7,20 @@ RUN apt update && \
     curl \
     git \
     gnupg \
+    locales \
     sudo \
     unzip \
     vim
 
-RUN echo "gopher ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/gopher && \
+RUN groupadd --gid 1000 gopher && \
+    useradd -s /bin/bash  --uid 1000 --gid 1000 -m gopher && \
+    echo "gopher ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/gopher && \
     chmod 0440 /etc/sudoers.d/gopher
+
+# LOCALE
+RUN sed -i 's/^# *\(en_US.UTF-8\)/\1/' /etc/locale.gen && \
+    sed -i 's/^# *\(ja_JP.UTF-8\)/\1/' /etc/locale.gen && \
+    locale-gen
 
 # Terraform
 RUN mkdir -p /tmp/terraform && \
